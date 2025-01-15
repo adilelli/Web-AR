@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR.js Image Marker Detection</title>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/jeromeetienne/ar.js/aframe/build/aframe-ar.min.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+  <!-- AR.js Scene -->
+  <a-scene embedded arjs>
+    <!-- Image Marker -->
+    <a-marker type="pattern" url="/marker.patt" id="imageMarker">
+      <!-- Translucent Panel -->
+      <a-rounded 
+        position="0 0.5 0" 
+        width="2" 
+        height="1" 
+        color="#000000" 
+        opacity="0.5" 
+        radius="0.2"
+      ></a-rounded>
+
+      <!-- Text -->
+      <a-text 
+        value="image-marker detected" 
+        color="white" 
+        position="0 0.5 0.1" 
+        align="center" 
+        scale="1.5 1.5 1.5"
+      ></a-text>
+    </a-marker>
+
+    <!-- Camera -->
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    // Define a custom rounded plane component for A-Frame
+    AFRAME.registerComponent('rounded', {
+      schema: {
+        width: { type: 'number', default: 1 },
+        height: { type: 'number', default: 1 },
+        color: { type: 'color', default: '#FFF' },
+        opacity: { type: 'number', default: 1 },
+        radius: { type: 'number', default: 0.1 }
+      },
+      init: function () {
+        const data = this.data;
+
+        // Create geometry and material
+        const geometry = new THREE.ShapeBufferGeometry(
+          this.createRoundedRect(data.width, data.height, data.radius)
+        );
+        const material = new THREE.MeshBasicMaterial({
+          color: data.color,
+          transparent: true,
+          opacity: data.opacity,
+        });
+
+        // Create mesh and add it to the scene
+        const mesh = new THREE.Mesh(geometry, material);
+        this.el.setObject3D('mesh', mesh);
+      },
+      createRoundedRect: function (width, height, radius) {
+        const shape = new THREE.Shape();
+        const w = width / 2, h = height / 2;
+
+        shape.moveTo(-w + radius, h);
+        shape.lineTo(w - radius, h);
+        shape.quadraticCurveTo(w, h, w, h - radius);
+        shape.lineTo(w, -h + radius);
+        shape.quadraticCurveTo(w, -h, w - radius, -h);
+        shape.lineTo(-w + radius, -h);
+        shape.quadraticCurveTo(-w, -h, -w, -h + radius);
+        shape.lineTo(-w, h - radius);
+        shape.quadraticCurveTo(-w, h, -w + radius, h);
+
+        return shape;
+      }
+    });
+  </script>
+</body>
+</html>
